@@ -1,6 +1,9 @@
+package org.example;
+
 import com.rabbitmq.client.*;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class Consumer {
 
@@ -14,8 +17,9 @@ public class Consumer {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
 
-        try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
+        try {
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
 
             String dlqName = topic + ".dlq";
             channel.queueDeclare(dlqName, true, false, false, null);
@@ -47,6 +51,9 @@ public class Consumer {
             };
 
             channel.basicConsume(topic, false, deliverCallback, consumerTag -> { });
+
+            // Mantén la aplicación en ejecución
+            Thread.currentThread().join();
         } catch (Exception e) {
             System.err.println("Error: " + e);
         }
