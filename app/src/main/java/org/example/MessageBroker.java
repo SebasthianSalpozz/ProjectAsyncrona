@@ -1,3 +1,4 @@
+package org.example;
 import java.util.concurrent.*;
 import java.util.*;
 
@@ -33,7 +34,7 @@ public class MessageBroker {
                     try {
                         Message message = topics.get(topic).poll(1, TimeUnit.SECONDS);
                         if (message != null) {
-                            consumer.consume(message);
+                            consumer.consume();
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();

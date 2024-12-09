@@ -1,3 +1,5 @@
+package org.example;
+
 public class Message {
     private final String topic;
     private final String content;
