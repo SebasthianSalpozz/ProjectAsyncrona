@@ -1,5 +1,10 @@
 package org.example;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+import org.example.exceptions.ReciveMessageException;
+
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -21,17 +26,18 @@ public class Producer {
         factory.setHost("localhost");
 
         try (Connection connection = factory.newConnection();
-             Channel channel = connection.createChannel()) {
+                Channel channel = connection.createChannel()) {
 
             channel.queueDeclare(topic, true, false, false, Map.of(
                     "x-dead-letter-exchange", "",
-                    "x-dead-letter-routing-key", topic + ".dlq"
-            ));
+                    "x-dead-letter-routing-key", topic + ".dlq"));
 
             channel.basicPublish("", topic, null, message.getContent().getBytes());
             System.out.println(" [x] Sent '" + message.getContent() + "'");
-        } catch (Exception e) {
-            System.err.println("Error: " + e);
+        } catch (IOException e) {
+            throw new ReciveMessageException("Connection error with the topic", e);
+        } catch (TimeoutException e) {
+            throw new ReciveMessageException("time exceeded to recive the message", e);
         }
     }
 
