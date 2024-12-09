@@ -26,10 +26,9 @@ public class Consumer {
 
             channel.queueDeclare(topic, true, false, false, Map.of(
                     "x-dead-letter-exchange", "",
-                    "x-dead-letter-routing-key", dlqName
-            ));
+                    "x-dead-letter-routing-key", dlqName));
 
-            channel.basicQos(1); // Limitar mensajes simultáneos para Backpressure
+            channel.basicQos(1);
 
             System.out.println(" [*] Waiting for messages on topic: " + topic);
 
@@ -39,10 +38,6 @@ public class Consumer {
                 try {
                     System.out.println(" [x] Processing message: " + message);
 
-                    if (Math.random() < 0.2) { // Simula error en procesamiento
-                        throw new RuntimeException("Processing failed!");
-                    }
-
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (Exception e) {
                     System.err.println(" [!] Error processing message: " + message);
@@ -50,9 +45,9 @@ public class Consumer {
                 }
             };
 
-            channel.basicConsume(topic, false, deliverCallback, consumerTag -> { });
+            channel.basicConsume(topic, false, deliverCallback, consumerTag -> {
+            });
 
-            // Mantén la aplicación en ejecución
             Thread.currentThread().join();
         } catch (Exception e) {
             System.err.println("Error: " + e);
