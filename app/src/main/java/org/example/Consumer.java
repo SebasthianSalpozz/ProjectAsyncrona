@@ -1,5 +1,10 @@
 package org.example;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+import org.example.exceptions.SendMessageException;
+
 import com.rabbitmq.client.*;
 
 import java.nio.charset.StandardCharsets;
@@ -44,13 +49,12 @@ public class Consumer {
                     channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
                 }
             };
-
-            channel.basicConsume(topic, false, deliverCallback, consumerTag -> {
+            channel.basicConsume(topic, true, deliverCallback, consumerTag -> {
             });
-
-            Thread.currentThread().join();
-        } catch (Exception e) {
-            System.err.println("Error: " + e);
+        } catch (IOException e) {
+            throw new SendMessageException("Connection error with the topic", e);
+        } catch (TimeoutException e) {
+            throw new SendMessageException("time exceeded to send the message", e);
         }
     }
 
